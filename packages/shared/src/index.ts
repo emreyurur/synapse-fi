@@ -21,21 +21,44 @@ export const ARC_TESTNET = {
 export const ADDRESSES: Record<
   number,
   {
+    usdc: `0x${string}` | null;
     creditPool: `0x${string}` | null;
     creditLineManager: `0x${string}` | null;
-    revenueRouter: `0x${string}` | null;
+    revenueRouterFactory: `0x${string}` | null;
     scoreOracle: `0x${string}` | null;
     interestRateModel: `0x${string}` | null;
+    agentRegistry: `0x${string}` | null;
   }
 > = {
   [ARC_TESTNET_CHAIN_ID]: {
+    usdc: null,
     creditPool: null,
     creditLineManager: null,
-    revenueRouter: null,
+    revenueRouterFactory: null,
     scoreOracle: null,
     interestRateModel: null,
+    agentRegistry: null,
   },
 };
+
+/** Line status enum — mirrors CreditLineManager.Status. */
+export const LINE_STATUS = ["None", "Active", "Delinquent", "Closed"] as const;
+
+/** Revenue share routed to repayment while a line has debt (12%). */
+export const REPAYMENT_SHARE_BPS = 1200;
+
+/** Score (0–1000) → letter grade, matching the UI tiers. */
+export function scoreToGrade(score: number): string {
+  if (score >= 800) return "A+";
+  if (score >= 750) return "A";
+  if (score >= 700) return "A−";
+  if (score >= 675) return "B+";
+  if (score >= 640) return "B";
+  if (score >= 600) return "B−";
+  if (score >= 550) return "C+";
+  if (score >= 500) return "C";
+  return "D";
+}
 
 /** Interest-rate model parameters (mirrors InterestRateModel.sol). */
 export const RATE_MODEL = {

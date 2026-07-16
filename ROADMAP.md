@@ -34,11 +34,11 @@ synapsefi/
 
 ## Faz 0 — Temel Kurulum
 
-- [ ] Monorepo yapısına geçiş (pnpm workspaces veya npm workspaces); mevcut Next.js kodu `apps/web`'e taşınır
-- [ ] `packages/contracts` altında Foundry projesi init; Arc Testnet RPC + ArcScan verify config'i (`foundry.toml`)
+- [x] Monorepo yapısına geçiş (pnpm workspaces veya npm workspaces); mevcut Next.js kodu `apps/web`'e taşınır
+- [x] `packages/contracts` altında Foundry projesi init; Arc Testnet RPC + ArcScan verify config'i (`foundry.toml`)
 - [ ] Arc Testnet faucet'ten test USDC temini; deployer + oracle işlemcisi cüzdanlarının oluşturulması (Circle Dev-Controlled Wallets veya lokal keystore)
-- [ ] `packages/shared`: kontrat adresleri + ABI'lerin tek kaynaktan export edildiği paket (deploy script'i otomatik günceller)
-- [ ] GitHub Actions: lint + forge test + next build pipeline'ı
+- [x] `packages/shared`: kontrat adresleri + ABI'lerin tek kaynaktan export edildiği paket (deploy script'i otomatik günceller)
+- [x] GitHub Actions: lint + forge test + next build pipeline'ı
 
 **Milestone:** `forge script Deploy` Arc Testnet'e boş bir sayaç kontratı atabiliyor, frontend build CI'da yeşil.
 
@@ -47,18 +47,18 @@ synapsefi/
 ## Faz 1 — Kontratlar: Çekirdek Protokol
 
 ### 1a. Skor ve kimlik
-- [ ] `ScoreOracle.sol` — epoch bazlı skor kaydı (`setScore(agentId, score, grade, factorsHash)`), sadece yetkili oracle işlemcisi yazabilir; skor geçerlilik süresi (staleness) kontrolü
-- [ ] `AgentRegistryAdapter.sol` — ERC-8004 kimlik/itibar registry'sinden agent → operator adresi ve itibar verisini okuyan ince katman (registry testnet'te yoksa mock'u yazılır)
+- [x] `ScoreOracle.sol` — epoch bazlı skor kaydı (`setScore(agentId, score, grade, factorsHash)`), sadece yetkili oracle işlemcisi yazabilir; skor geçerlilik süresi (staleness) kontrolü
+- [x] `AgentRegistryAdapter.sol` — ERC-8004 kimlik/itibar registry'sinden agent → operator adresi ve itibar verisini okuyan ince katman (registry testnet'te yoksa mock'u yazılır)
 
 ### 1b. Likidite ve kredi
-- [ ] `CreditPool.sol` — ERC-4626 USDC vault (spUSDC payı); deposit/withdraw, utilization hesabı, %10 reserve factor
-- [ ] `InterestRateModel.sol` — kink'li model (base %2, kink %80'de %10, sonrası dik eğim) — prototipteki eğriyle birebir
-- [ ] `CreditLineManager.sol` — skor → limit/APR eşlemesi, `openLine / draw / repay`, sağlık durumu (Healthy / At limit / Grace / Delinquent), borç muhasebesi (index tabanlı faiz tahakkuku)
+- [x] `CreditPool.sol` — ERC-4626 USDC vault (spUSDC payı); deposit/withdraw, utilization hesabı, %10 reserve factor
+- [x] `InterestRateModel.sol` — kink'li model (base %2, kink %80'de %10, sonrası dik eğim) — prototipteki eğriyle birebir
+- [x] `CreditLineManager.sol` — skor → limit/APR eşlemesi, `openLine / draw / repay`, sağlık durumu (Healthy / At limit / Grace / Delinquent), borç muhasebesi (index tabanlı faiz tahakkuku)
 
 ### 1c. Otomatik geri ödeme (projenin kalbi)
-- [ ] `RevenueRouter.sol` — agent'ın gelir adresi olarak ayarlanan split kontratı: gelen her USDC'yi `x% → CreditPool (borç amortismanı)`, `(100−x)% → agent treasury` olarak böler; borç bitince otomatik %0'a düşer
-- [ ] Temerrüt akışı: grace period → delinquent → ERC-8004 itibar cezası (adapter üzerinden feedback/slash) + kalan gelir alacağının havuz lehine temliki
-- [ ] Foundry test paketi: birim + fuzz (faiz tahakkuku, split matematiği, reentrancy), fork testleri; hedef ≥%90 coverage
+- [x] `RevenueRouter.sol` — agent'ın gelir adresi olarak ayarlanan split kontratı: gelen her USDC'yi `x% → CreditPool (borç amortismanı)`, `(100−x)% → agent treasury` olarak böler; borç bitince otomatik %0'a düşer
+- [x] Temerrüt akışı: grace period → delinquent → ERC-8004 itibar cezası (adapter üzerinden feedback/slash) + kalan gelir alacağının havuz lehine temliki
+- [x] Foundry test paketi: birim + fuzz (faiz tahakkuku, split matematiği, reentrancy), fork testleri; hedef ≥%90 coverage
 
 **Milestone:** Testnet'te uçtan uca senaryo script ile çalışıyor: LP deposit → agent'a line açılıyor → draw → router'a gelen ödemeler borcu eritiyor → line kapanıyor.
 
@@ -67,7 +67,7 @@ synapsefi/
 ## Faz 2 — Backend: Indexer, Skorlama, API
 
 - [ ] **Ponder indexer** (`packages/indexer`): ERC-8183 job event'leri, nanopayment transferleri, protokol event'leri (Draw, Repay, Deposit, ScoreUpdated) → PostgreSQL
-- [ ] **Skorlama servisi**: indexlenen veriden 4 faktörün hesabı — job tamamlama oranı, gelir sürekliliği, anlaşmazlık(dispute)-siz oran, gelir istikrarı (volatilite) → 0–1000 skor + harf notu; formül `packages/shared`'da versiyonlanır
+- [ ] **Skorlama servisi**: indexlenen veriden 4 faktörün hesabı — job tamamlama oranı, gelir sürekliliği, anlaşmazlık(dispute)-siz oran, gelir istikrarı (volatilite) → 0–100 skor + harf notu; formül `packages/shared`'da versiyonlanır
 - [ ] **Oracle işlemcisi**: cron ile her epoch (~6 dk) skorları hesaplayıp `ScoreOracle.setScore` çağrısı atar (viem walletClient; anahtar Circle Dev-Controlled Wallet'ta)
 - [ ] **REST API** (Hono): `GET /agents`, `GET /agents/:id` (skor kırılımı, gelir serisi, ödeme geçmişi), `GET /pool/stats` (TVL, utilization, APY, default rate), `GET /agents/:id/payments`
 - [ ] Sentetik trafik üreteci: testnet'te demo agent'lar adına ERC-8183 job + nanopayment üreten script (demo verisinin canlı akması için)
