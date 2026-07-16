@@ -1,0 +1,10 @@
+import type { PillState } from "@/lib/mock-data";
+
+export function Pill({ state, children }: { state: PillState; children: React.ReactNode }) {
+  return (
+    <span className={`pill ${state}`}>
+      <span className="pd" />
+      {children}
+    </span>
+  );
+}

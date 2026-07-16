@@ -1,0 +1,16 @@
+{
+  "name": "synapsefi",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @synapsefi/web",
+    "build": "npm run build -w @synapsefi/web",
+    "start": "npm run start -w @synapsefi/web",
+    "lint": "npm run lint -w @synapsefi/web",
+    "test:contracts": "forge test --root packages/contracts"
+  }
+}
