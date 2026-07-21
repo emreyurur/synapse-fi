@@ -12,7 +12,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Coins, Gauge, Landmark, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Coins, ExternalLink, Gauge, Landmark, Sparkles } from "lucide-react";
+import { ARC_TESTNET } from "@synapsefi/shared";
 import { api } from "@/lib/api";
 import { chain } from "@/lib/wagmi";
 import { groupMoney, contractAddresses } from "@/lib/contracts";
@@ -282,7 +283,19 @@ function TractionSlide() {
             {contracts.map(([label, addr]) => (
               <div key={label} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <span className="text-muted-foreground">{label}</span>
-                <span>{short(addr)}</span>
+                {addr ? (
+                  <a
+                    href={`${ARC_TESTNET.explorerUrl}/address/${addr}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                  >
+                    {short(addr)}
+                    <ExternalLink size={11} />
+                  </a>
+                ) : (
+                  <span>{short(addr)}</span>
+                )}
               </div>
             ))}
           </div>
