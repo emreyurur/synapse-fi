@@ -37,7 +37,9 @@ contract MockJobBoard {
     uint256 public nextJobId = 1;
     mapping(uint256 jobId => Job) public jobs;
 
-    event JobPosted(uint256 indexed jobId, address indexed poster, address indexed agent, address payTo, uint256 amount);
+    event JobPosted(
+        uint256 indexed jobId, address indexed poster, address indexed agent, address payTo, uint256 amount
+    );
     event JobCompleted(uint256 indexed jobId, address indexed agent, address payTo, uint256 amount);
     event JobDisputed(uint256 indexed jobId, address indexed agent, uint256 amount);
     event NanoPayment(address indexed payer, address indexed agent, address payTo, uint256 amount);
