@@ -70,7 +70,7 @@ function TitleSlide() {
       <h1 className="mt-6 text-6xl font-bold leading-[1.02] tracking-tight lg:text-7xl">SynapseFi</h1>
       <p className="mt-4 text-2xl font-medium text-muted-foreground">Working capital for the agentic economy.</p>
       <p className="mt-6 max-w-[52ch] text-base leading-relaxed text-muted-foreground">
-        Uncollateralized USDC credit lines for AI agents — underwritten by what an agent actually
+        Uncollateralized USDC credit lines for AI agents, underwritten by what an agent actually
         earns onchain, not what it holds.
       </p>
     </SlideShell>
@@ -81,7 +81,7 @@ function ProblemSlide() {
   const points = [
     {
       title: "Agents earn real, verifiable revenue",
-      body: "ERC-8183 job payouts and nanopayments settle onchain — a genuine, auditable cash-flow history.",
+      body: "ERC-8183 job payouts and nanopayments settle onchain: a genuine, auditable cash-flow history.",
     },
     {
       title: "DeFi lending ignores it",
@@ -123,7 +123,7 @@ function SolutionSlide() {
       </h2>
       <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-muted-foreground">
         SynapseFi reads an agent&apos;s onchain reputation (ERC-8004) and job/nanopayment revenue
-        (ERC-8183), computes a 0–100 credit score, and opens a USDC line sized to that score —{" "}
+        (ERC-8183), computes a 0–100 credit score, and opens a USDC line sized to that score, with{" "}
         <span className="font-semibold text-foreground">no collateral</span>. Repayment is cut
         automatically from the agent&apos;s incoming revenue via a per-agent{" "}
         <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-base">RevenueSplitter</code>{" "}
@@ -197,7 +197,7 @@ function MechanismSlide() {
             </div>
           </dl>
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-            Borrow APR follows a kinked utilization curve — 2% base, 10% at 80% utilization, 19% at 100%.
+            Borrow APR follows a kinked utilization curve: 2% base, 10% at 80% utilization, 19% at 100%.
           </p>
         </Card>
       </div>
@@ -216,15 +216,15 @@ function TractionSlide() {
     { label: "Borrow APR from", value: `${(stats?.borrowApr ?? 0).toFixed(1)}%` },
   ];
   const whatsLive = [
-    "Borrow — open a line, draw, repay",
-    "Earn — ERC-4626 vault deposit / withdraw",
-    "Agent Market — live scores, tier & status filters",
+    "Borrow: open a line, draw, repay",
+    "Earn: ERC-4626 vault deposit / withdraw",
+    "Agent Market: live scores, tier & status filters",
     "Automatic demo scoring for wallets with no job history",
   ];
   const infra = [
-    "Ponder indexer — 5 contract types → Postgres",
+    "Ponder indexer, 5 contract types → Postgres",
     "Hono API + cron oracle worker (epoch scoring)",
-    "35 Foundry tests — unit + fuzz",
+    "35 Foundry tests (unit + fuzz)",
     "Deployed: Railway (API/indexer) + Vercel (frontend)",
   ];
   const contracts = [
@@ -240,7 +240,7 @@ function TractionSlide() {
         Live on {chain.name} right now
       </h2>
       <p className="mt-4 max-w-[60ch] text-sm text-muted-foreground">
-        Every number below is a live read from the deployed contracts and indexer — not seeded copy.
+        Every number below is a live read from the deployed contracts and indexer, not seeded copy.
       </p>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -309,11 +309,11 @@ function MarketSlide() {
   const points = [
     {
       title: "Agents are already transacting",
-      body: "69,000 active agents and 165M transactions on x402 alone (Coinbase/Cloudflare, Apr 2026); ~25,000 agents registered under ERC-8004. Not theoretical — running today.",
+      body: "69,000 active agents and 165M transactions on x402 alone (Coinbase/Cloudflare, Apr 2026); ~25,000 agents registered under ERC-8004. Not theoretical. Running today.",
     },
     {
       title: "Stablecoins are the native rail",
-      body: "Stablecoins settled $7.5T in March 2026 — more than ACH. USDC alone moved $18.3T in 2025 (Artemis/Bloomberg). This is already how agents pay and get paid.",
+      body: "Stablecoins settled $7.5T in March 2026, more than ACH. USDC alone moved $18.3T in 2025 (Artemis/Bloomberg). This is already how agents pay and get paid.",
     },
     {
       title: "No underwriting layer exists",
@@ -335,7 +335,7 @@ function MarketSlide() {
         ))}
       </div>
       <p className="mt-8 max-w-[62ch] text-sm text-muted-foreground">
-        SynapseFi is the underwriting layer for that economy — the credit bureau and the lender,
+        SynapseFi is the underwriting layer for that economy: the credit bureau and the lender,
         both reading directly from the chain.
       </p>
     </SlideShell>
@@ -348,7 +348,7 @@ function MarketSizeSlide() {
       abbr: "TAM",
       full: "Total addressable",
       value: "$1.5T",
-      body: "Global agentic-commerce spend by 2030 — Juniper Research.",
+      body: "Global agentic-commerce spend by 2030 (Juniper Research).",
       bar: "from-primary to-accent",
     },
     {
@@ -396,10 +396,10 @@ function MarketSizeSlide() {
 
 function WhyArcSlide() {
   const facts = [
-    { title: "USDC-native gas", body: "Fees are paid in USDC itself — predictable, dollar-denominated cost for every agent decision." },
-    { title: "Sub-second finality", body: "Arc's Malachite consensus gives deterministic, fast settlement — agents can act near real-time." },
+    { title: "USDC-native gas", body: "Fees are paid in USDC itself: predictable, dollar-denominated cost for every agent decision." },
+    { title: "Sub-second finality", body: "Arc's Malachite consensus gives deterministic, fast settlement, so agents can act near real-time." },
     { title: "Built for stablecoin finance", body: "Arc is Circle's L1, purpose-built for payments and stablecoin settlement, not general-purpose compute." },
-    { title: "An ecosystem that already gets agents", body: "100+ institutional testnet partners — including BlackRock, Visa, Coinbase, and Anthropic." },
+    { title: "An ecosystem that already gets agents", body: "100+ institutional testnet partners, including BlackRock, Visa, Coinbase, and Anthropic." },
   ];
   return (
     <SlideShell>
@@ -414,7 +414,7 @@ function WhyArcSlide() {
         ))}
       </div>
       <p className="mt-6 text-xs text-muted-foreground">
-        Source: Circle, &ldquo;Introducing Arc&rdquo; — testnet launched October 2025, mainnet targeted summer 2026.
+        Source: Circle, &ldquo;Introducing Arc.&rdquo; Testnet launched October 2025; mainnet targeted summer 2026.
       </p>
     </SlideShell>
   );
@@ -432,7 +432,7 @@ function ArchitectureSlide() {
       n: "02",
       cat: "Indexer",
       title: "Ponder → Postgres",
-      body: "Watches every contract's events — scores, lines, deposits, payments — into one schema.",
+      body: "Watches every contract's events (scores, lines, deposits, payments) into one schema.",
     },
     {
       n: "03",
@@ -480,7 +480,7 @@ function RoadmapSlide() {
       tag: "Phase 2",
       status: "Done",
       title: "Indexer & API",
-      items: ["Ponder indexer (5 contract types)", "Hono REST API", "Oracle worker — epoch scoring"],
+      items: ["Ponder indexer (5 contract types)", "Hono REST API", "Oracle worker (epoch scoring)"],
     },
     {
       tag: "Phase 3",
@@ -555,7 +555,7 @@ function TeamSlide() {
 
 function AskSlide() {
   const uses = [
-    { label: "Partnerships", amount: "$50K", body: "Protocol integrations — agent job boards, x402, ERC-8004 identity registries, LP partners." },
+    { label: "Partnerships", amount: "$50K", body: "Protocol integrations: agent job boards, x402, ERC-8004 identity registries, LP partners." },
     { label: "Core team", amount: "$50K", body: "Hiring protocol, backend, and product engineers to accelerate execution." },
     { label: "Chain expansion", amount: "$25K", body: "Mainnet deployment on Arc, engineering for additional EVM chains." },
     { label: "Marketing & growth", amount: "$50K", body: "Agent-developer ecosystem distribution, GTM, community growth." },
@@ -602,7 +602,7 @@ function TryItSlide() {
         Connect a wallet. See a score in seconds.
       </h2>
       <p className="mt-6 max-w-[56ch] text-lg leading-relaxed text-muted-foreground">
-        Every flow in this deck is live on {chain.name} — Borrow, Earn, and the Agent Market all
+        Every flow in this deck is live on {chain.name}: Borrow, Earn, and the Agent Market all
         read and write the deployed contracts.
       </p>
       <div className="mt-9 flex flex-wrap gap-3">
