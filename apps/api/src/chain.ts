@@ -29,14 +29,17 @@ export async function readPoolState(): Promise<PoolChainState | null> {
   const pool = config.addresses.creditPool;
   if (!pool) return null;
   try {
-    const [totalAssets, totalLent, reserves, utilizationBps] = await Promise.all([
-      publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "totalAssets" }),
-      publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "totalLent" }),
-      publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "reserves" }),
-      publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "utilizationBps" }),
-    ]);
+    // Sequential, not Promise.all — four simultaneous requests against Arc's
+    // shared public RPC reliably trip its rate limit (seen repeatedly: the
+    // mock-score onboarding write and the indexer's historical sync both hit
+    // "request limit reached" under identical concurrent-call patterns).
+    const totalAssets = await publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "totalAssets" });
+    const totalLent = await publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "totalLent" });
+    const reserves = await publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "reserves" });
+    const utilizationBps = await publicClient.readContract({ address: pool, abi: creditPoolAbi, functionName: "utilizationBps" });
     return { totalAssets, totalLent, reserves, utilizationBps };
-  } catch {
+  } catch (err) {
+    console.error("[chain] readPoolState failed", err);
     return null;
   }
 }
@@ -53,7 +56,8 @@ export async function readOnchainScore(agent: `0x${string}`): Promise<{ score: n
       args: [agent],
     })) as [number, boolean];
     return { score: Number(score), fresh };
-  } catch {
+  } catch (err) {
+    console.error("[chain] readOnchainScore failed", err);
     return null;
   }
 }
