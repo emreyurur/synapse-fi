@@ -500,7 +500,7 @@ export function BorrowView() {
                     <td>{p.kind === "job" ? "Job payout" : "Nanopayment"}</td>
                     <td>{p.jobId != null ? `#${p.jobId}` : "stream"}</td>
                     <td>{p.payer ? shortAddress(p.payer) : "unspecified"}</td>
-                    <td className="num">{groupMoney(p.amount)}</td>
+                    <td className="num">{groupMoney(p.amount)} USDC</td>
                     <td>{shortAddress(p.txHash)}</td>
                   </tr>
                 ))}
