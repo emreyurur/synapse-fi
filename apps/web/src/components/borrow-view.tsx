@@ -9,6 +9,7 @@ import { useAmountInput } from "@/lib/use-amount-input";
 import { txErrorMessage, useTx } from "@/lib/use-tx";
 import { RevenueChart } from "./charts";
 import { Pill, type PillState } from "./pill";
+import { CopyButton } from "./copy-button";
 
 // Gauge geometry: a 270° dial (90° gap at the bottom). Track length is 264 of
 // a 352 total (matches the circle's circumference at r=56).
@@ -192,7 +193,10 @@ export function BorrowView() {
         </svg>
         <div className="avatar" aria-hidden="true">{address!.slice(2, 4).toUpperCase()}</div>
         <div>
-          <h1 className="mono">{shortAddress(address!)}</h1>
+          <h1 className="mono" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            {shortAddress(address!)}
+            <CopyButton value={address!} />
+          </h1>
           <div className="sub mono">
             {agent?.id ? `ERC-8004 ${agent.id}` : "not registered"}
             {agent?.reputation != null && ` · reputation ${agent.reputation}`}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import {
   useBalance,
   useConnect,
@@ -13,6 +14,7 @@ import { chain } from "@/lib/wagmi";
 import { formatUsdc, usdc } from "@/lib/contracts";
 import { useTx } from "@/lib/use-tx";
 import { ArcIcon } from "./arc-icon";
+import { CopyButton } from "./copy-button";
 
 /** MockUSDC is a free-mint testnet token — 10,000 USDC is enough to try Earn + Borrow. */
 const FAUCET_AMOUNT = 10_000n * 10n ** 6n;
@@ -52,13 +54,33 @@ export function AppBar() {
       ? "Connecting…"
       : "Connect wallet";
 
+  // Connected click opens a menu (copy address / disconnect) instead of
+  // disconnecting immediately — a stray click on the address used to drop
+  // the wallet with no way back.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, [menuOpen]);
+
   const onClick = () => {
     if (isConnected) {
-      disconnect();
+      setMenuOpen((v) => !v);
     } else {
       const connector = connectors[0];
       if (connector) connect({ connector });
     }
+  };
+
+  const onDisconnect = () => {
+    setMenuOpen(false);
+    disconnect();
   };
 
   return (
@@ -108,9 +130,27 @@ export function AppBar() {
             Get test USDC
           </button>
         )}
-        <button className="wallet-btn mono" type="button" onClick={onClick} title={isConnected ? "Disconnect" : "Connect an injected wallet"}>
-          {label}
-        </button>
+        <div className="wallet-menu-wrap" ref={menuRef}>
+          <button
+            className="wallet-btn mono"
+            type="button"
+            onClick={onClick}
+            title={isConnected ? "Account menu" : "Connect an injected wallet"}
+          >
+            {label}
+          </button>
+          {menuOpen && isConnected && address && (
+            <div className="wallet-menu">
+              <div className="wallet-menu-address mono">
+                {shortAddress(address)}
+                <CopyButton value={address} />
+              </div>
+              <button type="button" className="wallet-menu-disconnect" onClick={onDisconnect}>
+                Disconnect
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

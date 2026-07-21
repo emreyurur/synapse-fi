@@ -130,6 +130,31 @@
 }
 .wallet-btn:hover { filter: brightness(1.08); }
 
+.wallet-menu-wrap { position: relative; }
+.wallet-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 40;
+  min-width: 220px; background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 6px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.wallet-menu-address {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 10px; font-size: 13px; color: var(--ink-2);
+}
+.wallet-menu-disconnect {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  border-radius: 7px; padding: 8px 10px; font-size: 13px; font-weight: 600;
+  color: var(--crit); cursor: pointer;
+}
+.wallet-menu-disconnect:hover { background: color-mix(in srgb, var(--crit) 10%, transparent); }
+
+.copy-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: none; padding: 3px; border-radius: 5px;
+  color: var(--ink-3); cursor: pointer; flex: none;
+}
+.copy-btn:hover { color: var(--ink); background: var(--hairline-soft); }
+
 /* ── Tabs ────────────────────────────────── */
 .tabs { display: flex; gap: 2px; margin: 20px 0 26px; border-bottom: 1px solid var(--hairline); }
 .tab {
