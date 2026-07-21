@@ -75,7 +75,7 @@ export function AppBar() {
             type="button"
             onClick={() => switchChain({ chainId: chain.id })}
             disabled={isSwitching}
-            style={{ borderColor: "var(--crit)", color: "var(--crit)" }}
+            style={{ background: "var(--crit)", borderColor: "var(--crit)", color: "#ffffff" }}
           >
             {isSwitching ? "Switching…" : <>Switch to <ArcIcon /> {chain.name}</>}
           </button>
@@ -89,7 +89,7 @@ export function AppBar() {
           Gas&nbsp;·&nbsp;
           <strong>
             {isConnected && !wrongNetwork && nativeBalance
-              ? `${(Number(nativeBalance.value) / 10 ** nativeBalance.decimals).toFixed(4)} USDC`
+              ? `${(Number(nativeBalance.value) / 10 ** nativeBalance.decimals).toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 4 })} USDC`
               : "0.0000 USDC"}
           </strong>
         </span>

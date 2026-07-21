@@ -205,7 +205,7 @@ export function MarketView() {
                     </span>
                   </td>
                   <td><span className="score-chip mono">{a.score}</span><span className="score-grade">{a.grade}</span></td>
-                  <td className="num mono">{groupMoney(a.revenue)}</td>
+                  <td className="num mono">{groupMoney(a.revenue)} USDC</td>
                   <td><Sparkline pts={a.revenueSeries} /></td>
                   <td className="num mono">{groupMoney(a.limit)}</td>
                   <td className="num mono">{groupMoney(a.drawn)}</td>
