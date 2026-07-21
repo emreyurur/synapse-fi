@@ -36,3 +36,14 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# claude code — personal permission overrides, not shared project settings
+.claude/settings.local.json
+
+# Internal working docs — kept locally, not published in the public repo.
+# README.md is the only doc meant to be visible to outside readers (judges).
+/RUNBOOK.md
+/BACKEND.md
+/ROADMAP.md
+/AGENTS.md
+/CLAUDE.md
