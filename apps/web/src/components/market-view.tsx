@@ -6,6 +6,90 @@ import { api, type AgentSummary } from "@/lib/api";
 import { Sparkline } from "./charts";
 import { Pill, type PillState } from "./pill";
 
+type MarketAgent = AgentSummary & { mock?: true };
+
+/** Wave a 30-day series around a mean so the sparkline reads as real activity. */
+function revenueSeries(mean: number, spread: number): number[] {
+  return Array.from({ length: 30 }, (_, i) => {
+    const day = Math.max(0, mean + Math.sin(i / 2.3) * spread + (i % 5 === 0 ? spread * 0.6 : 0));
+    return Math.round(day * 100) / 100;
+  });
+}
+
+// Not on-chain — fills out the market for a fresh deployment with no real
+// agent history yet. Clearly labelled "Demo" in the Agent column so nobody
+// mistakes one for a real credit line.
+const MOCK_AGENTS: MarketAgent[] = [
+  {
+    address: "0xdec0de0000000000000000000000000000a1a1",
+    id: null,
+    score: 92,
+    grade: "A+",
+    onchainScore: null,
+    consistent: null,
+    revenue: "412.50",
+    revenueSeries: revenueSeries(14, 3),
+    limit: "21,000.00",
+    drawn: "9,400.00",
+    apr: "4.2%",
+    status: "Active",
+    health: "Healthy",
+    jobs: { posted: 61, completed: 60, disputed: 0, completionRate: 98.4 },
+    mock: true,
+  },
+  {
+    address: "0xdec0de0000000000000000000000000000b2b2",
+    id: null,
+    score: 68,
+    grade: "B−",
+    onchainScore: null,
+    consistent: null,
+    revenue: "146.10",
+    revenueSeries: revenueSeries(5, 2.2),
+    limit: "9,000.00",
+    drawn: "8,760.00",
+    apr: "9.8%",
+    status: "Active",
+    health: "At limit",
+    jobs: { posted: 22, completed: 19, disputed: 1, completionRate: 86.4 },
+    mock: true,
+  },
+  {
+    address: "0xdec0de0000000000000000000000000000c3c3",
+    id: null,
+    score: 44,
+    grade: "D",
+    onchainScore: null,
+    consistent: null,
+    revenue: "18.30",
+    revenueSeries: revenueSeries(0.6, 0.5),
+    limit: "0.00",
+    drawn: "0.00",
+    apr: "0.0%",
+    status: "None",
+    health: "None",
+    jobs: { posted: 5, completed: 2, disputed: 2, completionRate: 40 },
+    mock: true,
+  },
+  {
+    address: "0xdec0de0000000000000000000000000000d4d4",
+    id: null,
+    score: 55,
+    grade: "C",
+    onchainScore: null,
+    consistent: null,
+    revenue: "61.75",
+    revenueSeries: revenueSeries(2, 1.5),
+    limit: "2,500.00",
+    drawn: "2,500.00",
+    apr: "14.5%",
+    status: "Delinquent",
+    health: "Delinquent",
+    jobs: { posted: 14, completed: 9, disputed: 4, completionRate: 64.3 },
+    mock: true,
+  },
+];
+
 // Score is 0–100 (see @synapsefi/shared gradeFor); tier cutoffs align with its
 // letter-grade boundaries (75 = B+, 60 = C+).
 const tierFilters: Record<string, (score: number) => boolean> = {
@@ -48,7 +132,9 @@ export function MarketView() {
     refetchInterval: 15_000, // matches the API cache TTL
   });
 
-  const agents: AgentSummary[] = useMemo(() => data?.agents ?? [], [data]);
+// Real indexed agents first, then the demo fill-ins, same as the API's
+  // best-score-first ordering would tend to interleave them anyway.
+  const agents: MarketAgent[] = useMemo(() => [...(data?.agents ?? []), ...MOCK_AGENTS], [data]);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -60,6 +146,7 @@ export function MarketView() {
     );
   }, [agents, query, tier, status]);
 
+  const indexedCount = data?.agents.length ?? 0;
   const activeLines = agents.filter((a) => a.status === "Active").length;
 
   return (
@@ -87,7 +174,7 @@ export function MarketView() {
             <span className="meta">
               {isLoading
                 ? "Loading live agents from the indexer…"
-                : `${agents.length} agents indexed · ${activeLines} open lines · scores refresh every oracle epoch (~6 min)`}
+                : `${indexedCount} agents indexed, ${MOCK_AGENTS.length} demo · ${activeLines} open lines · scores refresh every oracle epoch (~6 min)`}
             </span>
           </div>
         </div>
@@ -111,7 +198,7 @@ export function MarketView() {
                         <strong className="mono">{shortAddress(a.address)}</strong>
                         <br />
                         <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>
-                          {a.id ? `ERC-8004 ${a.id}` : "unregistered"}
+                          {a.mock ? "demo · not onchain" : a.id ? `ERC-8004 ${a.id}` : "unregistered"}
                         </span>
                       </span>
                     </span>
@@ -132,7 +219,7 @@ export function MarketView() {
                       ? "Loading…"
                       : isError
                         ? `Could not reach the API: ${(error as Error).message}`
-                        : agents.length === 0
+                        : indexedCount === 0
                           ? "No agents indexed yet. Run some job traffic to populate the market."
                           : "No agents match the current filters."}
                   </td>
