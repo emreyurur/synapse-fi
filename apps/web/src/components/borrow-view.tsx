@@ -168,10 +168,14 @@ export function BorrowView() {
   const onRepay = async () => {
     if (parsedRepay === null || !address) return;
     if (needsRepayApproval) {
-      await tx.send({ ...usdc, functionName: "approve", args: [creditLineManager.address, parsedRepay] });
-      return; // allowance refetches on confirm; the button becomes "Repay"
+      // Chained: repay fires automatically once approve confirms — no second click.
+      await tx.sendChain([
+        { ...usdc, functionName: "approve", args: [creditLineManager.address, parsedRepay] },
+        { ...creditLineManager, functionName: "repay", args: [address, parsedRepay] },
+      ]);
+    } else {
+      await tx.send({ ...creditLineManager, functionName: "repay", args: [address, parsedRepay] });
     }
-    await tx.send({ ...creditLineManager, functionName: "repay", args: [address, parsedRepay] });
     repay.set("");
   };
 

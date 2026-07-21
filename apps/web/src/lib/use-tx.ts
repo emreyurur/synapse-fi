@@ -17,6 +17,9 @@ export function useTx() {
   const queryClient = useQueryClient();
   const toast = useToast();
   const toastId = useRef<number | null>(null);
+  // Requests queued behind the one currently in flight — see sendChain().
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- call shape varies per contract
+  const queue = useRef<any[]>([]);
 
   const { mutateAsync: write, data: hash, isPending: isSigning, error: writeError, reset: resetWrite } = useWriteContract();
   // Bound the receipt wait: `isConfirming` feeds `isBusy`, which disables every
@@ -73,28 +76,68 @@ export function useTx() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  const send = useCallback(
+  const rawSend = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- call shape varies per contract; wagmi types it at the call site
     async (request: any) => {
       try {
         return await write(request);
       } catch {
         // Surfaced via `error`; rejections here are usually the user declining.
+        queue.current = []; // a rejected/failed step cancels whatever was queued behind it
         return undefined;
       }
     },
     [write],
   );
 
+  // Once a tx actually confirms (not just submits — approve() resolving only
+  // means the wallet returned a hash, the allowance isn't live on-chain yet),
+  // fire the next queued request. This is what turns "approve, then the user
+  // has to notice the button relabeled and click Deposit again" into one
+  // click — that second click was easy to miss and left USDC "approved but
+  // not deposited" with the UI showing no change, which read as a bug.
+  useEffect(() => {
+    if (status !== "success") return;
+    const next = queue.current.shift();
+    if (next) rawSend(next);
+  }, [status, rawSend]);
+
+  /** Sends a single write. Cancels any chain queued behind a previous sendChain(). */
+  const send = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (request: any) => {
+      queue.current = [];
+      return rawSend(request);
+    },
+    [rawSend],
+  );
+
+  /**
+   * Sends `requests[0]` now; each subsequent entry fires only after the one
+   * before it confirms on-chain. Each step still gets its own toast and its
+   * own wallet prompt — this removes the "click again after approving" step,
+   * not the second signature.
+   */
+  const sendChain = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (requests: any[]) => {
+      if (requests.length === 0) return Promise.resolve(undefined);
+      queue.current = requests.slice(1);
+      return rawSend(requests[0]);
+    },
+    [rawSend],
+  );
+
   const reset = useCallback(() => {
     resetWrite();
+    queue.current = [];
     if (toastId.current !== null) {
       toast.dismiss(toastId.current);
       toastId.current = null;
     }
   }, [resetWrite, toast]);
 
-  return { send, status, error, hash, reset, isBusy: isSigning || isConfirming };
+  return { send, sendChain, status, error, hash, reset, isBusy: isSigning || isConfirming };
 }
 
 /** Short, human-readable reason from a viem/wagmi error. */

@@ -70,10 +70,15 @@ export function EarnView() {
     if (!address || parsed === null) return;
     if (mode === "deposit") {
       if (needsApproval) {
-        await tx.send({ ...usdc, functionName: "approve", args: [creditPool.address, parsed] });
-        return; // allowance refetches on confirm; the button becomes "Deposit"
+        // Chained: the deposit fires automatically once approve confirms —
+        // no second click needed.
+        await tx.sendChain([
+          { ...usdc, functionName: "approve", args: [creditPool.address, parsed] },
+          { ...creditPool, functionName: "deposit", args: [parsed, address] },
+        ]);
+      } else {
+        await tx.send({ ...creditPool, functionName: "deposit", args: [parsed, address] });
       }
-      await tx.send({ ...creditPool, functionName: "deposit", args: [parsed, address] });
     } else {
       await tx.send({ ...creditPool, functionName: "withdraw", args: [parsed, address, address] });
     }
