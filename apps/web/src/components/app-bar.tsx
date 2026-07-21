@@ -12,6 +12,7 @@ import {
 import { chain } from "@/lib/wagmi";
 import { formatUsdc, usdc } from "@/lib/contracts";
 import { useTx } from "@/lib/use-tx";
+import { ArcIcon } from "./arc-icon";
 
 /** MockUSDC is a free-mint testnet token — 10,000 USDC is enough to try Earn + Borrow. */
 const FAUCET_AMOUNT = 10_000n * 10n ** 6n;
@@ -63,15 +64,8 @@ export function AppBar() {
   return (
     <header className="appbar">
       <div className="brand">
-        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
-          <circle cx="7" cy="22" r="3.4" fill="var(--accent)" />
-          <circle cx="15" cy="9" r="3.4" fill="var(--accent)" opacity="0.75" />
-          <circle cx="24" cy="19" r="3.4" fill="var(--series-2)" />
-          <path d="M9 20 L13 12 M17.5 10.5 L21.8 16.6 M10.2 21.4 L20.6 19.4" stroke="var(--ink-3)" strokeWidth="1.4" fill="none" />
-        </svg>
         <div>
-          <div className="brand-name">SynapseFi</div>
-          <div className="brand-sub">Agent credit protocol · Arc</div>
+          <div className="brand-name" style={{ fontSize: 21 }}>SynapseFi</div>
         </div>
       </div>
       <div className="appbar-right">
@@ -83,12 +77,12 @@ export function AppBar() {
             disabled={isSwitching}
             style={{ borderColor: "var(--crit)", color: "var(--crit)" }}
           >
-            {isSwitching ? "Switching…" : `Switch to ${chain.name}`}
+            {isSwitching ? "Switching…" : <>Switch to <ArcIcon /> {chain.name}</>}
           </button>
         ) : (
           <span className="chip">
             <span className="dot" />
-            {chain.name}
+            <ArcIcon /> {chain.name}
           </span>
         )}
         <span className="chip mono" title="Native Arc testnet USDC — pays for every transaction, including the faucet mint below. Get some from an Arc faucet if this reads 0.">

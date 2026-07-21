@@ -54,21 +54,55 @@
   }
 }
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-body {
-  background: var(--page);
-  color: var(--ink);
-  font: 14px/1.55 "Segoe UI", system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
+/*
+ * Bridges the tokens above into Tailwind's theme under shadcn/ui's
+ * conventional names (bg-card, border-border, text-muted-foreground, ...).
+ * `inline` resolves each var at utility-generation time against whatever
+ * :root currently holds, so light/dark stays driven by the same tokens the
+ * rest of the app already uses — no second palette to keep in sync.
+ */
+@theme inline {
+  --color-background: var(--page);
+  --color-foreground: var(--ink);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-muted: var(--raised);
+  --color-muted-foreground: var(--ink-3);
+  --color-border: var(--hairline);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-ink);
+  --color-accent: var(--series-2);
+  --color-accent-foreground: #ffffff;
+  --color-ring: var(--accent);
+  --color-destructive: var(--crit);
 }
-.mono {
-  font-family: "Cascadia Mono", ui-monospace, Consolas, "SF Mono", monospace;
-  font-variant-numeric: tabular-nums;
+
+/*
+ * @layer base — not just organization: Tailwind's utilities live in
+ * @layer utilities, and per the CSS cascade-layers spec an *unlayered*
+ * rule beats every layered one regardless of specificity or source
+ * order. A plain `a { color: var(--accent) }` here would silently win
+ * over any `text-*` Tailwind class on a Link/anchor (this exact bug
+ * washed out the pitch-deck CTA buttons' text) — @layer base keeps
+ * these as overridable defaults instead.
+ */
+@layer base {
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font: 14px/1.55 "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono {
+    font-family: "Cascadia Mono", ui-monospace, Consolas, "SF Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  button { font: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 }
-a { color: var(--accent); text-decoration: none; }
-button { font: inherit; cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 
 .shell { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px; }
 
@@ -336,47 +370,15 @@ footer .col { display: flex; flex-direction: column; gap: 4px; }
 .app-notice strong { color: var(--ink); }
 
 @keyframes pulse { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
-.synapse-bg circle.p, .landing-network circle.p { animation: pulse 3.2s ease-in-out infinite; }
-.synapse-bg circle.p:nth-child(2n), .landing-network circle.p:nth-child(2n) { animation-delay: 1.1s; }
-.synapse-bg circle.p:nth-child(3n), .landing-network circle.p:nth-child(3n) { animation-delay: 2.2s; }
+.synapse-bg circle.p { animation: pulse 3.2s ease-in-out infinite; }
+.synapse-bg circle.p:nth-child(2n) { animation-delay: 1.1s; }
+.synapse-bg circle.p:nth-child(3n) { animation-delay: 2.2s; }
 @media (prefers-reduced-motion: reduce) {
-  .synapse-bg circle.p, .landing-network circle.p { animation: none; }
+  .synapse-bg circle.p { animation: none; }
 }
 
-/* ── Landing page ─────────────────────────── */
-.landing { max-width: 1180px; margin: 0 auto; padding: 0 24px 64px; }
-.landing-top {
-  display: flex; align-items: center; gap: 16px;
-  padding: 14px 0; border-bottom: 1px solid var(--hairline);
-}
-.landing-top .chip { margin-left: auto; }
-
-.landing-hero {
-  display: grid; grid-template-columns: 1.15fr 0.85fr; align-items: center;
-  gap: 36px; padding: 60px 0 52px;
-}
-.landing-hero-copy h1 {
-  font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700;
-  margin: 12px 0 16px; max-width: 15ch;
-}
-.landing-sub { font-size: 15.5px; line-height: 1.6; color: var(--ink-2); max-width: 46ch; margin: 0 0 28px; }
-.landing-cta-row { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 36px; }
-.landing-cta { flex: none; padding: 13px 28px; font-size: 15px; border-radius: 9px; }
-.landing-disclosure { font-size: 12px; color: var(--ink-3); max-width: 44ch; line-height: 1.5; }
-.landing-stats { display: flex; gap: 32px; flex-wrap: wrap; }
-.landing-stats > div { display: flex; flex-direction: column; gap: 3px; }
-.landing-stats .v { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
-.landing-stats .l { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.07em; }
-.landing-network { width: 100%; height: auto; max-width: 480px; justify-self: center; }
-
-.landing-steps { padding: 8px 0 44px; border-top: 1px solid var(--hairline); padding-top: 36px; }
-.landing-steps .eyebrow { margin-bottom: 16px; }
-
-@media (max-width: 900px) {
-  .landing-hero { grid-template-columns: 1fr; padding-top: 40px; }
-  .landing-network { order: -1; max-width: 340px; }
-  .landing-hero-copy h1 { max-width: none; font-size: 34px; }
-}
+/* Landing page is Tailwind-utility-driven (landing-page.tsx) — no custom
+   classes here; light/dark comes from the @theme inline bridge above. */
 
 /* ── Toasts (bottom-right, tx status) ─────── */
 .toast-stack {

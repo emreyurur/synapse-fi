@@ -8,6 +8,7 @@ import { EarnView } from "./earn-view";
 import { MarketView } from "./market-view";
 import { LandingPage } from "./landing-page";
 import { ProtocolFooter } from "./protocol-footer";
+import { ArcIcon } from "./arc-icon";
 import { chain } from "@/lib/wagmi";
 
 const tabs = [
@@ -54,7 +55,7 @@ export function Dashboard() {
       {active === "market" && <MarketView />}
 
       <div className="mock-note mono">
-        TESTNET BETA · Live contracts on {chain.name}. Balances are test USDC with no real value.
+        TESTNET BETA · Live contracts on <ArcIcon /> {chain.name}. Balances are test USDC with no real value.
       </div>
 
       <ProtocolFooter />
