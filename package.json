@@ -8,9 +8,17 @@
   ],
   "scripts": {
     "dev": "npm run dev -w @synapsefi/web",
+    "dev:api": "npm run dev -w @synapsefi/api",
+    "dev:indexer": "npm run dev -w @synapsefi/indexer",
     "build": "npm run build -w @synapsefi/web",
     "start": "npm run start -w @synapsefi/web",
     "lint": "npm run lint -w @synapsefi/web",
+    "oracle": "npm run oracle -w @synapsefi/api",
+    "traffic": "npm run traffic -w @synapsefi/api",
+    "typecheck:api": "npm run typecheck -w @synapsefi/api",
+    "typecheck:indexer": "npm run typecheck -w @synapsefi/indexer",
+    "test": "npm run test -w @synapsefi/api",
+    "test:api": "npm run test -w @synapsefi/api",
     "test:contracts": "forge test --root packages/contracts"
   }
 }

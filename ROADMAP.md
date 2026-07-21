@@ -64,31 +64,25 @@ synapsefi/
 
 ---
 
-## Faz 2 — Backend: Indexer, Skorlama, API
 
-- [ ] **Ponder indexer** (`packages/indexer`): ERC-8183 job event'leri, nanopayment transferleri, protokol event'leri (Draw, Repay, Deposit, ScoreUpdated) → PostgreSQL
-- [ ] **Skorlama servisi**: indexlenen veriden 4 faktörün hesabı — job tamamlama oranı, gelir sürekliliği, anlaşmazlık(dispute)-siz oran, gelir istikrarı (volatilite) → 0–100 skor + harf notu; formül `packages/shared`'da versiyonlanır
-- [ ] **Oracle işlemcisi**: cron ile her epoch (~6 dk) skorları hesaplayıp `ScoreOracle.setScore` çağrısı atar (viem walletClient; anahtar Circle Dev-Controlled Wallet'ta)
-- [ ] **REST API** (Hono): `GET /agents`, `GET /agents/:id` (skor kırılımı, gelir serisi, ödeme geçmişi), `GET /pool/stats` (TVL, utilization, APY, default rate), `GET /agents/:id/payments`
-- [ ] Sentetik trafik üreteci: testnet'te demo agent'lar adına ERC-8183 job + nanopayment üreten script (demo verisinin canlı akması için)
-- [ ] Backend testleri (vitest) + API rate limit/cache (TanStack Query staleTime ile uyumlu)
 
-**Milestone:** `GET /agents/scout-7b` prototipteki tüm sayıları gerçek (indexlenmiş) veriden döndürüyor; skorlar zincirdeki `ScoreOracle` ile tutarlı.
 
 ---
 
 ## Faz 3 — Frontend: Mock'tan Gerçek Veriye
 
-- [ ] wagmi codegen / `packages/shared` ABI'leriyle tip güvenli kontrat hook'ları
-- [ ] **Borrow sekmesi**: bağlı cüzdanın agent'ına ait gerçek line verisi (`useReadContract`: limit, drawn, APR, sağlık) + `Draw funds` ve `Repay` işlem akışları (onay → tx → toast → invalidate)
-- [ ] **Earn sekmesi**: gerçek TVL/utilization/APY okuma; `Deposit USDC` (approve + deposit) ve `Withdraw` ERC-4626 akışları
-- [ ] **Agent Market**: API'den canlı agent listesi (TanStack Query), sayfalama; satıra tıklayınca agent detay sayfası (`/agents/[id]`)
+- [x] `packages/shared` ABI'leriyle tip güvenli kontrat handle'ları (`apps/web/src/lib/contracts.ts`)
+- [x] **Borrow sekmesi**: bağlı cüzdanın agent'ına ait gerçek line verisi (`useReadContract`: limit, drawn, APR, sağlık) + `Draw` / `Repay` (approve dahil) işlem akışları
+- [x] **Earn sekmesi**: gerçek TVL/utilization/APY okuma; `Deposit USDC` (approve + deposit) ve `Withdraw` ERC-4626 akışları
+- [x] **Agent Market**: API'den canlı agent listesi (TanStack Query) + filtreler
+- [ ] Agent Market: sayfalama; satıra tıklayınca agent detay sayfası (`/agents/[id]`)
 - [ ] **App Kit entegrasyonu**: `@circle-fin/app-kit` + viem adapter ile app bar'daki Unified Balance'ı gerçek çoklu-zincir USDC bakiyesine bağlama; LP için "başka zincirden USDC köprüle" (Bridge Kit) akışı
-- [ ] Gelir grafiği + repayment tablosunun indexer verisiyle beslenmesi; epoch geri sayımının zincirden okunması
-- [ ] Cüzdan UX: yanlış ağda "Switch to Arc Testnet" isteği, tx hata/başarı durumları, boş durumlar (line'ı olmayan agent için "Apply for a line" onboarding'i
-- [ ] Mock note kaldırılıp "Testnet beta" banner'ına dönüştürülmesi
+- [x] Gelir grafiği + ödeme tablosunun indexer verisiyle beslenmesi
+- [ ] Epoch geri sayımının zincirden okunması (şu an sadece epoch numarası gösteriliyor)
+- [x] Cüzdan UX: yanlış ağda "Switch to Arc Testnet" isteği, tx hata/başarı durumları, boş durumlar (line'ı olmayan agent için "Apply for a line" onboarding'i)
+- [x] Mock note kaldırılıp "Testnet beta" banner'ına dönüştürülmesi
 
-**Milestone:** Demo akışı tamamen zincir üzerinde: cüzdan bağla → USDC yatır (LP) → agent draw etsin → nanopayment gelsin → router'ın böldüğünü ve borcun eridiğini UI canlı göstersin.
+**Milestone:** ✅ Yerelde doğrulandı — anvil (chain id 5042002) üzerinde uçtan uca: LP 80k USDC yatırdı → agent'ın skoru oracle'dan 86/100 (A) geldi → 18.5k limit açıldı → 12k draw edildi → job/nanopayment geliri RevenueRouter'a aktı → `flush()` %12'yi havuza gönderip borcu erittı. UI tüm bunları zincirden ve indexer API'sinden canlı okuyor. Kurulum adımları: `RUNBOOK.md`.
 
 ---
 
@@ -118,6 +112,7 @@ graph LR
 ```
 
 Frontend tx akışları (3a) yalnızca kontratlara bağımlıdır; indexer (Faz 2) ile **paralel** yürütülebilir.
+
 
 ## Açık Sorular / Riskler
 

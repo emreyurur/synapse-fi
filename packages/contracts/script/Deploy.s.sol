@@ -5,6 +5,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {MockUSDC} from "../src/mocks/MockUSDC.sol";
 import {MockAgentRegistry} from "../src/mocks/MockAgentRegistry.sol";
+import {MockJobBoard} from "../src/mocks/MockJobBoard.sol";
 import {ScoreOracle} from "../src/ScoreOracle.sol";
 import {InterestRateModel} from "../src/InterestRateModel.sol";
 import {CreditPool} from "../src/CreditPool.sol";
@@ -55,6 +56,9 @@ contract DeployScript is Script {
         factory.setManager(address(manager));
         registry.setPenalizer(address(manager), true);
 
+        // ERC-8183 job/nanopayment source for the indexer (testnet stand-in).
+        MockJobBoard jobBoard = new MockJobBoard(usdc);
+
         vm.stopBroadcast();
 
         console.log("USDC:               ", address(usdc));
@@ -64,5 +68,6 @@ contract DeployScript is Script {
         console.log("CreditLineManager:  ", address(manager));
         console.log("RevenueRouterFactory:", address(factory));
         console.log("MockAgentRegistry:  ", address(registry));
+        console.log("MockJobBoard:       ", address(jobBoard));
     }
 }

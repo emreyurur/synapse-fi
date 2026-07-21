@@ -5,6 +5,8 @@ import { AppBar } from "./app-bar";
 import { BorrowView } from "./borrow-view";
 import { EarnView } from "./earn-view";
 import { MarketView } from "./market-view";
+import { chain } from "@/lib/wagmi";
+import { contractAddresses } from "@/lib/contracts";
 
 const tabs = [
   { id: "borrow", label: "Borrow" },
@@ -13,6 +15,8 @@ const tabs = [
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
+
+const short = (a: string | undefined) => (a ? `${a.slice(0, 6)}…${a.slice(-4)}` : "not deployed");
 
 export function Dashboard() {
   const [active, setActive] = useState<TabId>("borrow");
@@ -41,15 +45,16 @@ export function Dashboard() {
       {active === "market" && <MarketView />}
 
       <div className="mock-note mono">
-        DESIGN PROTOTYPE v0.1 · All data is mock. No live contracts, wallets, or transactions.
+        TESTNET BETA · Live contracts on {chain.name}. Balances are test USDC with no real value.
+        Wallets with no job history get a demo starter score so Borrow is usable end to end.
       </div>
 
       <footer>
         <div className="col">
-          <strong style={{ color: "var(--ink-2)" }}>Protocol contracts · Arc Testnet</strong>
-          <span className="mono">CreditPool (ERC-4626) 0xA4e9…1B77</span>
-          <span className="mono">RevenueRouter 0x51c2…9dA1</span>
-          <span className="mono">ScoreOracle 0x9d40…C3f2</span>
+          <strong style={{ color: "var(--ink-2)" }}>Protocol contracts · {chain.name}</strong>
+          <span className="mono">CreditPool (ERC-4626) {short(contractAddresses.creditPool)}</span>
+          <span className="mono">CreditLineManager {short(contractAddresses.creditLineManager)}</span>
+          <span className="mono">ScoreOracle {short(contractAddresses.scoreOracle)}</span>
         </div>
         <div className="col">
           <strong style={{ color: "var(--ink-2)" }}>Built on</strong>

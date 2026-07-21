@@ -1,0 +1,35 @@
+{
+  "name": "@synapsefi/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "start": "tsx --env-file-if-exists=.env src/index.ts",
+    "oracle": "tsx --env-file-if-exists=.env src/oracle/index.ts",
+    "traffic": "tsx --env-file-if-exists=.env scripts/synthetic-traffic.ts",
+    "fund": "tsx --env-file-if-exists=.env scripts/fund-wallet.ts",
+    "seed:full": "tsx --env-file-if-exists=.env scripts/seed-full-demo.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.0",
+    "@synapsefi/indexer": "*",
+    "@synapsefi/shared": "*",
+    "drizzle-orm": "0.41.0",
+    "hono": "^4.6.0",
+    "node-cron": "^3.0.3",
+    "pg": "^8.13.0",
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.11.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

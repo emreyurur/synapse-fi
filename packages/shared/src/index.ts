@@ -2,6 +2,9 @@
 // The Foundry deploy script (packages/contracts/script/Deploy.s.sol) writes the
 // broadcast output; addresses below are updated from it after each deployment.
 
+export * from "./scoring";
+export * from "./abis";
+
 export const ARC_TESTNET_CHAIN_ID = 5042002;
 
 export const ARC_TESTNET = {
@@ -28,8 +31,13 @@ export const ADDRESSES: Record<
     scoreOracle: `0x${string}` | null;
     interestRateModel: `0x${string}` | null;
     agentRegistry: `0x${string}` | null;
+    jobBoard: `0x${string}` | null;
   }
 > = {
+  // Not deployed to the real Arc Testnet yet. The local anvil chain reuses this
+  // chain id, but its addresses are deployment-specific and must come from the
+  // environment (`*_ADDRESS` / `NEXT_PUBLIC_*_ADDRESS`) — putting them here
+  // would point a real Arc Testnet build at addresses that only exist locally.
   [ARC_TESTNET_CHAIN_ID]: {
     usdc: null,
     creditPool: null,
@@ -38,6 +46,7 @@ export const ADDRESSES: Record<
     scoreOracle: null,
     interestRateModel: null,
     agentRegistry: null,
+    jobBoard: null,
   },
 };
 
@@ -46,19 +55,6 @@ export const LINE_STATUS = ["None", "Active", "Delinquent", "Closed"] as const;
 
 /** Revenue share routed to repayment while a line has debt (12%). */
 export const REPAYMENT_SHARE_BPS = 1200;
-
-/** Score (0–1000) → letter grade, matching the UI tiers. */
-export function scoreToGrade(score: number): string {
-  if (score >= 800) return "A+";
-  if (score >= 750) return "A";
-  if (score >= 700) return "A−";
-  if (score >= 675) return "B+";
-  if (score >= 640) return "B";
-  if (score >= 600) return "B−";
-  if (score >= 550) return "C+";
-  if (score >= 500) return "C";
-  return "D";
-}
 
 /** Interest-rate model parameters (mirrors InterestRateModel.sol). */
 export const RATE_MODEL = {

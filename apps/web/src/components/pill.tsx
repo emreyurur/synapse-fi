@@ -1,4 +1,4 @@
-import type { PillState } from "@/lib/mock-data";
+export type PillState = "ok" | "warn" | "crit";
 
 export function Pill({ state, children }: { state: PillState; children: React.ReactNode }) {
   return (

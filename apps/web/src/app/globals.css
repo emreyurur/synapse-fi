@@ -7,6 +7,8 @@
   --raised: #f7f9fe;
   --hairline: rgba(23, 34, 74, 0.12);
   --hairline-soft: rgba(23, 34, 74, 0.07);
+  /* For borders that must read as an affordance (input fields), not as chrome. */
+  --hairline-strong: rgba(23, 34, 74, 0.3);
   --ink: #111731;
   --ink-2: #4e5878;
   --ink-3: #7c86a3;
@@ -32,6 +34,7 @@
     --raised: #182342;
     --hairline: rgba(148, 166, 220, 0.17);
     --hairline-soft: rgba(148, 166, 220, 0.09);
+    --hairline-strong: rgba(148, 166, 220, 0.38);
     --ink: #e9edfa;
     --ink-2: #9aa4c4;
     --ink-3: #67718f;
@@ -181,8 +184,14 @@ button { font: inherit; cursor: pointer; }
   flex: 1; background: none; color: var(--ink); border: 1px solid var(--hairline);
   border-radius: 8px; padding: 9px 0; font-weight: 600; font-size: 13.5px;
 }
-.btn-primary:hover { filter: brightness(1.08); }
-.btn-ghost:hover { background: var(--accent-wash); }
+.btn-primary, .btn-ghost { cursor: pointer; }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn-ghost:hover:not(:disabled) { background: var(--accent-wash); }
+/* A disabled action must look disabled — otherwise it reads as broken: the
+   click silently does nothing and the reader blames the app, not the input. */
+.btn-primary:disabled, .btn-ghost:disabled {
+  opacity: 0.45; cursor: not-allowed; filter: none;
+}
 
 .pill {
   display: inline-flex; align-items: center; gap: 6px;
@@ -262,6 +271,52 @@ tbody tr:hover { background: var(--accent-wash); }
   color: var(--ink); padding: 7px 11px; font: inherit; font-size: 13px;
 }
 .filters input { width: 240px; max-width: 100%; }
+
+/* ── Amount field (draw / repay / deposit / withdraw) ──
+   The action buttons next to these are disabled until an amount is entered, so
+   the field has to read unmistakably as "type here" — a bare unstyled input did
+   not, and readers clicked the dead button instead. */
+.amount-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.amount-field > .al {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-2);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+}
+.amount-field > .al .avail { font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--ink-3); }
+.amount-row { display: flex; gap: 8px; align-items: stretch; }
+.amount-input {
+  flex: 1; min-width: 0; position: relative;
+  display: flex; align-items: center; gap: 6px;
+  /* --raised, not --surface: the card is already --surface, so a same-colour
+     field would be a border floating on nothing. */
+  background: var(--raised); border: 1.5px solid var(--hairline-strong);
+  border-radius: 8px; padding: 0 10px;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.amount-input:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+.amount-input input {
+  /* width: 0 — an <input> defaults to size=20, i.e. ~159px of intrinsic width that
+     min-width: 0 does not remove from its min-content contribution. That propagates
+     up to the auto grid track holding these fields, which then cannot shrink to the
+     card and the action button spills out the side. flex-basis (from flex: 1) still
+     drives the real width. */
+  flex: 1; min-width: 0; width: 0; background: none; border: none; outline: none;
+  color: var(--ink); font: inherit; font-size: 15px; font-weight: 600;
+  font-variant-numeric: tabular-nums; padding: 9px 0;
+}
+.amount-input input::placeholder { color: var(--ink-3); font-weight: 400; font-size: 14px; }
+.amount-input .unit { font-size: 12px; font-weight: 600; color: var(--ink-3); flex: none; }
+.amount-input .max-btn {
+  flex: none; background: var(--accent-wash); color: var(--accent);
+  border: none; border-radius: 5px; padding: 3px 7px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; cursor: pointer;
+}
+.amount-input .max-btn:hover { filter: brightness(0.94); }
+.amount-row .btn-primary, .amount-row .btn-ghost { flex: none; min-width: 96px; }
+.field-error { font-size: 11.5px; color: var(--crit); margin: 0; }
 
 /* ── Footer ──────────────────────────────── */
 footer { margin-top: 40px; border-top: 1px solid var(--hairline); padding-top: 18px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 12px; color: var(--ink-3); }

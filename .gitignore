@@ -13,6 +13,12 @@ coverage/
 packages/contracts/out/
 packages/contracts/cache/
 packages/contracts/broadcast/
+.anvil/
+
+# ponder (indexer) — generated
+packages/indexer/.ponder/
+packages/indexer/generated/
+packages/indexer/ponder-env.d.ts
 
 # misc
 .DS_Store

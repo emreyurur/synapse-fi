@@ -1,22 +1,49 @@
 "use client";
 
-import { useBalance, useConnect, useConnection, useDisconnect } from "wagmi";
+import {
+  useBalance,
+  useConnect,
+  useConnection,
+  useConnectors,
+  useDisconnect,
+  useReadContract,
+  useSwitchChain,
+} from "wagmi";
+import { chain } from "@/lib/wagmi";
+import { formatUsdc, usdc } from "@/lib/contracts";
+import { useTx } from "@/lib/use-tx";
+
+/** MockUSDC is a free-mint testnet token — 10,000 USDC is enough to try Earn + Borrow. */
+const FAUCET_AMOUNT = 10_000n * 10n ** 6n;
 
 function shortAddress(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-function formatUsdc(value: bigint, decimals: number) {
-  const num = Number(value) / 10 ** decimals;
-  return num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
 export function AppBar() {
-  const { address, isConnected } = useConnection();
-  const { connect, connectors, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
-  // Gas token on Arc is USDC itself, so the native balance IS the USDC balance.
-  const { data: balance } = useBalance({ address });
+  const { address, isConnected, chainId } = useConnection();
+  const { mutate: connect, isPending } = useConnect();
+  const connectors = useConnectors();
+  const { mutate: disconnect } = useDisconnect();
+  const { mutate: switchChain, isPending: isSwitching } = useSwitchChain();
+  const faucet = useTx();
+
+  // The protocol denominates Earn/Borrow in an ERC-20 test token (MockUSDC),
+  // which is a *different* balance from the wallet's native currency — Arc's
+  // native gas token is also called "USDC" (18 decimals), which is real
+  // testnet USDC from an Arc faucet and is what pays for every transaction,
+  // including minting the test token below. Both are shown so that's obvious
+  // rather than one silently overwriting the other in a single "Balance" chip.
+  const { data: balance } = useReadContract({
+    ...usdc,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: Boolean(address) },
+  });
+  const { data: nativeBalance } = useBalance({ address, query: { enabled: Boolean(address) } });
+
+  const wrongNetwork = isConnected && chainId !== chain.id;
+  const onFaucet = () => address && faucet.send({ ...usdc, functionName: "mint", args: [address, FAUCET_AMOUNT] });
 
   const label = isConnected && address
     ? shortAddress(address)
@@ -48,18 +75,45 @@ export function AppBar() {
         </div>
       </div>
       <div className="appbar-right">
-        <span className="chip">
-          <span className="dot" />
-          Arc Testnet
-        </span>
-        <span className="chip mono">
-          Balance&nbsp;·&nbsp;
+        {wrongNetwork ? (
+          <button
+            className="wallet-btn mono"
+            type="button"
+            onClick={() => switchChain({ chainId: chain.id })}
+            disabled={isSwitching}
+            style={{ borderColor: "var(--crit)", color: "var(--crit)" }}
+          >
+            {isSwitching ? "Switching…" : `Switch to ${chain.name}`}
+          </button>
+        ) : (
+          <span className="chip">
+            <span className="dot" />
+            {chain.name}
+          </span>
+        )}
+        <span className="chip mono" title="Native Arc testnet USDC — pays for every transaction, including the faucet mint below. Get some from an Arc faucet if this reads 0.">
+          Gas&nbsp;·&nbsp;
           <strong>
-            {isConnected && balance
-              ? `${formatUsdc(balance.value, balance.decimals)} ${balance.symbol}`
+            {isConnected && !wrongNetwork && nativeBalance
+              ? `${(Number(nativeBalance.value) / 10 ** nativeBalance.decimals).toFixed(4)} USDC`
               : "—"}
           </strong>
         </span>
+        <span className="chip mono" title="MockUSDC — the ERC-20 test token Earn and Borrow actually run on, separate from your native gas balance">
+          Test&nbsp;USDC&nbsp;·&nbsp;
+          <strong>{isConnected && !wrongNetwork ? `${formatUsdc(balance)}` : "—"}</strong>
+        </span>
+        {isConnected && !wrongNetwork && (
+          <button
+            className="wallet-btn mono"
+            type="button"
+            onClick={onFaucet}
+            disabled={faucet.isBusy}
+            title="Mint 10,000 test USDC (MockUSDC, free on testnet) to try Earn and Borrow — costs a little native gas USDC"
+          >
+            {faucet.isBusy ? "Minting…" : "Get test USDC"}
+          </button>
+        )}
         <button className="wallet-btn mono" type="button" onClick={onClick} title={isConnected ? "Disconnect" : "Connect an injected wallet"}>
           {label}
         </button>
