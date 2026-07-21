@@ -53,13 +53,26 @@ export const scoreOracle = { address: addresses.scoreOracle, abi: scoreOracleAbi
 export const agentRegistry = { address: addresses.agentRegistry, abi: agentRegistryAbi } as const;
 export const usdc = { address: addresses.usdc, abi: erc20Abi } as const;
 
-/** Formats a 6-decimal USDC amount for display. */
+/** Formats a 6-decimal USDC amount for display. Unloaded reads show as 0.00, not a dash. */
 export function formatUsdc(value: bigint | undefined, fractionDigits = 2): string {
-  if (value === undefined) return "—";
+  if (value === undefined) value = 0n;
   return (Number(value) / 10 ** USDC_DECIMALS).toLocaleString("en-US", {
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   });
+}
+
+/**
+ * Adds thousand separators to an already-formatted fixed-point string from
+ * the API (e.g. the pool-stats/agent-summary USDC fields, "20000.00" ->
+ * "20,000.00"). Those arrive as plain toFixed() strings with no grouping.
+ */
+export function groupMoney(value: string | undefined): string {
+  if (value === undefined) return "0.00";
+  const n = Number(value);
+  if (!Number.isFinite(n)) return value;
+  const dp = value.includes(".") ? value.split(".")[1]?.length ?? 2 : 0;
+  return n.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
 }
 
 /**
@@ -115,7 +128,7 @@ export function parseUsdc(input: string): bigint | null {
 }
 
 export const bpsToPercent = (bps: bigint | number | undefined): string =>
-  bps === undefined ? "—" : `${(Number(bps) / 100).toFixed(1)}%`;
+  `${(Number(bps ?? 0) / 100).toFixed(1)}%`;
 
 /** Mirrors CreditLineManager.Status. */
 export const LINE_STATUS = ["None", "Active", "Delinquent", "Closed"] as const;

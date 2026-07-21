@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useConnection, useReadContract } from "wagmi";
 import { api } from "@/lib/api";
-import { creditLineManager, formatUsdc, parseUsdc, toUsdcInput, usdc } from "@/lib/contracts";
+import { creditLineManager, formatUsdc, groupMoney, parseUsdc, toUsdcInput, usdc } from "@/lib/contracts";
 import { useAmountInput } from "@/lib/use-amount-input";
 import { txErrorMessage, useTx } from "@/lib/use-tx";
 import { RevenueChart } from "./charts";
@@ -260,7 +260,7 @@ export function BorrowView() {
           <div className="card-head">
             <div>
               <p className="eyebrow">Credit score</p>
-              <span className="meta">ScoreOracle · epoch {agent?.epoch ?? "—"}</span>
+              <span className="meta">ScoreOracle · epoch {agent?.epoch ?? 0}</span>
             </div>
             {agent && <Pill state={score >= 60 ? "ok" : score >= 50 ? "warn" : "crit"}>Grade {agent.grade}</Pill>}
           </div>
@@ -274,7 +274,7 @@ export function BorrowView() {
               </svg>
               <div className="val">
                 <div>
-                  <div className="n mono">{agent ? score : "—"}</div>
+                  <div className="n mono">{score}</div>
                   <div className="d">of 100</div>
                 </div>
               </div>
@@ -291,8 +291,7 @@ export function BorrowView() {
           </div>
           {agent?.consistent === false && (
             <p className="meta" style={{ marginTop: 8, color: "var(--ink-3)" }}>
-              Syncing — on-chain still shows {agent.onchainScore} for now; the next oracle epoch
-              updates it to match the score above.
+              This score updates on-chain automatically at the next oracle epoch.
             </p>
           )}
         </div>
@@ -320,7 +319,7 @@ export function BorrowView() {
                 <span className="drawn" style={{ width: `${utilPct}%` }} />
                 <span className="avail" />
               </div>
-              <div className="kv-row"><span className="k">Borrow APR</span><span className="mono">{aprBps !== undefined ? `${(Number(aprBps) / 100).toFixed(2)}%` : "—"}</span></div>
+              <div className="kv-row"><span className="k">Borrow APR</span><span className="mono">{(Number(aprBps ?? 0) / 100).toFixed(2)}%</span></div>
               <div className="kv-row"><span className="k">Principal</span><span className="mono">{formatUsdc(principal)}</span></div>
               <div className="kv-row"><span className="k">Interest accrued</span><span className="mono">{formatUsdc(interest)}</span></div>
               <div className="kv-row"><span className="k">Wallet USDC</span><span className="mono">{formatUsdc(walletBalance)}</span></div>
@@ -429,7 +428,7 @@ export function BorrowView() {
               <span className="meta">Job payouts &amp; nanopayments, USDC</span>
             </div>
           </div>
-          <div className="big-num mono">{agent?.revenue.gross ?? "—"} <span className="big-unit">USDC</span></div>
+          <div className="big-num mono">{groupMoney(agent?.revenue.gross)} <span className="big-unit">USDC</span></div>
           <RevenueChart data={series} days={labels} />
           <div className="kv-row" style={{ marginTop: 8 }}><span className="k">Payments received</span><span className="mono">{agent?.payments.length ?? 0}</span></div>
           <div className="kv-row"><span className="k">Jobs completed</span><span className="mono">{agent?.jobs.completed ?? 0} / {agent?.jobs.posted ?? 0}</span></div>
@@ -451,7 +450,7 @@ export function BorrowView() {
             <div className="flow-node">
               <div className="fn-t">Incoming revenue</div>
               <div className="fn-s">ERC-8183 job payouts &amp; nanopayments</div>
-              <div className="fn-s mono" style={{ marginTop: 6 }}>{agent?.revenue.gross ?? "0.00"} USDC / 30d</div>
+              <div className="fn-s mono" style={{ marginTop: 6 }}>{groupMoney(agent?.revenue.gross)} USDC / 30d</div>
             </div>
             <div className="flow-arrow" aria-hidden="true">→</div>
             <div className="flow-node hl">
@@ -485,7 +484,7 @@ export function BorrowView() {
               </div>
               <div className="progress-meta">
                 <span>Outstanding <strong className="mono">{formatUsdc(totalDebt)} USDC</strong> of {formatUsdc(creditLimit)} limit</span>
-                <span>Repaid to date <span className="mono">{repaidTotal.toFixed(2)} USDC</span></span>
+                <span>Repaid to date <span className="mono">{groupMoney(repaidTotal.toFixed(2))} USDC</span></span>
               </div>
             </div>
           )}
@@ -504,8 +503,8 @@ export function BorrowView() {
                     <td>{new Date(p.timestamp * 1000).toLocaleTimeString()}</td>
                     <td>{p.kind === "job" ? "Job payout" : "Nanopayment"}</td>
                     <td>{p.jobId != null ? `#${p.jobId}` : "stream"}</td>
-                    <td>{p.payer ? shortAddress(p.payer) : "—"}</td>
-                    <td className="num">{p.amount}</td>
+                    <td>{p.payer ? shortAddress(p.payer) : "unspecified"}</td>
+                    <td className="num">{groupMoney(p.amount)}</td>
                     <td>{shortAddress(p.txHash)}</td>
                   </tr>
                 ))}

@@ -8,6 +8,7 @@ import { useConnect, useConnectors } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { chain } from "@/lib/wagmi";
+import { groupMoney } from "@/lib/contracts";
 import { ProtocolFooter } from "./protocol-footer";
 
 /** Agent nodes feeding a single pool node — the mechanism, not decoration. */
@@ -118,15 +119,15 @@ export function LandingPage() {
 
           <div className="landing-stats mono">
             <div>
-              <span className="v">{stats ? `$${stats.tvl}` : "—"}</span>
+              <span className="v">${groupMoney(stats?.tvl)}</span>
               <span className="l">Pool TVL</span>
             </div>
             <div>
-              <span className="v">{agentsData ? agentsData.count : "—"}</span>
+              <span className="v">{agentsData?.count ?? 0}</span>
               <span className="l">Agents scored</span>
             </div>
             <div>
-              <span className="v">{stats ? `${stats.borrowApr.toFixed(1)}%+` : "—"}</span>
+              <span className="v">{(stats?.borrowApr ?? 0).toFixed(1)}%+</span>
               <span className="l">Borrow APR from</span>
             </div>
           </div>

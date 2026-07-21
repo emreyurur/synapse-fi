@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useConnection, useReadContract } from "wagmi";
 import { api } from "@/lib/api";
-import { creditPool, formatUsdc, parseUsdc, toUsdcInput, usdc } from "@/lib/contracts";
+import { creditPool, formatUsdc, groupMoney, parseUsdc, toUsdcInput, usdc } from "@/lib/contracts";
 import { useAmountInput } from "@/lib/use-amount-input";
 import { txErrorMessage, useTx } from "@/lib/use-tx";
 import { RateChart } from "./charts";
@@ -100,25 +100,25 @@ export function EarnView() {
       <div className="tiles">
         <div className="tile">
           <p className="eyebrow">Total value locked</p>
-          <div className="t-v mono">{stats ? `$${stats.tvl}` : "—"}</div>
-          <div className="t-s">USDC · source: {stats?.source ?? "—"}</div>
+          <div className="t-v mono">${groupMoney(stats?.tvl)}</div>
+          <div className="t-s">USDC · source: {stats?.source ?? "loading"}</div>
         </div>
         <div className="tile">
           <p className="eyebrow">Utilization</p>
-          <div className="t-v mono">{stats ? `${stats.utilization.toFixed(1)}%` : "—"}</div>
+          <div className="t-v mono">{(stats?.utilization ?? 0).toFixed(1)}%</div>
           <div className="t-s">
-            {stats ? `$${stats.totalLent} drawn across ${stats.activeLines} lines` : "—"}
+            ${groupMoney(stats?.totalLent)} drawn across {stats?.activeLines ?? 0} lines
           </div>
         </div>
         <div className="tile">
           <p className="eyebrow">Supply APY</p>
-          <div className="t-v mono">{stats ? `${stats.supplyApy.toFixed(2)}%` : "—"}</div>
+          <div className="t-v mono">{(stats?.supplyApy ?? 0).toFixed(2)}%</div>
           <div className="t-s">Net of {stats?.reserveFactor ?? 10}% reserve factor</div>
         </div>
         <div className="tile">
           <p className="eyebrow">Default rate</p>
-          <div className="t-v mono">{stats ? `${stats.defaultRate.toFixed(2)}%` : "—"}</div>
-          <div className="t-s">{stats ? `${stats.defaults} defaulted lines` : "—"}</div>
+          <div className="t-v mono">{(stats?.defaultRate ?? 0).toFixed(2)}%</div>
+          <div className="t-s">{stats?.defaults ?? 0} defaulted lines</div>
         </div>
       </div>
 
@@ -147,7 +147,7 @@ export function EarnView() {
                 {formatUsdc(earned)} <span className="big-unit">USDC</span>
               </div>
               <div style={{ marginTop: 12 }}>
-                <div className="kv-row"><span className="k">spUSDC shares</span><span className="mono">{shares !== undefined ? shares.toString() : "—"}</span></div>
+                <div className="kv-row"><span className="k">spUSDC shares</span><span className="mono">{shares !== undefined ? shares.toString() : "0"}</span></div>
                 <div className="kv-row"><span className="k">Withdrawable now</span><span className="mono">{formatUsdc(withdrawable)}</span></div>
                 <div className="kv-row"><span className="k">Wallet USDC</span><span className="mono">{formatUsdc(walletBalance)}</span></div>
               </div>

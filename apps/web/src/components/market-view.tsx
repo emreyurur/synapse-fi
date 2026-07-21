@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, type AgentSummary } from "@/lib/api";
+import { groupMoney } from "@/lib/contracts";
 import { Sparkline } from "./charts";
 import { Pill, type PillState } from "./pill";
 
@@ -198,17 +199,17 @@ export function MarketView() {
                         <strong className="mono">{shortAddress(a.address)}</strong>
                         <br />
                         <span className="mono" style={{ fontSize: 11, color: "var(--ink-3)" }}>
-                          {a.mock ? "demo · not onchain" : a.id ? `ERC-8004 ${a.id}` : "unregistered"}
+                          {a.id ? `ERC-8004 ${a.id}` : "unregistered"}
                         </span>
                       </span>
                     </span>
                   </td>
                   <td><span className="score-chip mono">{a.score}</span><span className="score-grade">{a.grade}</span></td>
-                  <td className="num mono">{a.revenue}</td>
+                  <td className="num mono">{groupMoney(a.revenue)}</td>
                   <td><Sparkline pts={a.revenueSeries} /></td>
-                  <td className="num mono">{a.limit}</td>
-                  <td className="num mono">{a.drawn}</td>
-                  <td className="num mono">{a.status === "None" ? "—" : a.apr}</td>
+                  <td className="num mono">{groupMoney(a.limit)}</td>
+                  <td className="num mono">{groupMoney(a.drawn)}</td>
+                  <td className="num mono">{a.status === "None" ? "0.0%" : a.apr}</td>
                   <td><Pill state={pillState(a.health)}>{a.health === "None" ? "No line" : a.health}</Pill></td>
                 </tr>
               ))}

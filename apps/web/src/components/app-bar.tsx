@@ -96,12 +96,12 @@ export function AppBar() {
           <strong>
             {isConnected && !wrongNetwork && nativeBalance
               ? `${(Number(nativeBalance.value) / 10 ** nativeBalance.decimals).toFixed(4)} USDC`
-              : "—"}
+              : "0.0000 USDC"}
           </strong>
         </span>
         <span className="chip mono" title="MockUSDC — the ERC-20 test token Earn and Borrow actually run on, separate from your native gas balance">
           Test&nbsp;USDC&nbsp;·&nbsp;
-          <strong>{isConnected && !wrongNetwork ? `${formatUsdc(balance)}` : "—"}</strong>
+          <strong>{isConnected && !wrongNetwork ? formatUsdc(balance) : "0.00"}</strong>
         </span>
         {isConnected && !wrongNetwork && (
           <button
