@@ -290,8 +290,9 @@ export function BorrowView() {
             </div>
           </div>
           {agent?.consistent === false && (
-            <p className="meta" style={{ marginTop: 8, color: "var(--warn)" }}>
-              On-chain score ({agent.onchainScore}) lags the freshly computed score — next epoch will sync it.
+            <p className="meta" style={{ marginTop: 8, color: "var(--ink-3)" }}>
+              Syncing — on-chain still shows {agent.onchainScore} for now; the next oracle epoch
+              updates it to match the score above.
             </p>
           )}
         </div>

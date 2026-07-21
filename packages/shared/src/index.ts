@@ -17,6 +17,21 @@ export const ARC_TESTNET = {
 } as const;
 
 /**
+ * Arc Testnet's three known public RPC endpoints (the same set viem's own
+ * `arcTestnet` chain definition lists, and the indexer already rotates
+ * through via `PONDER_RPC_URL_ARC`). The primary endpoint rate-limits hard
+ * under any real traffic ("request limit reached" — reproduced repeatedly:
+ * the mock-score onboarding write, the indexer's historical sync, and
+ * `/pool/stats`'s live chain read all hit it). Callers should wrap these in
+ * viem's `fallback()` transport rather than pointing at just the first one.
+ */
+export const ARC_TESTNET_RPC_URLS = [
+  "https://rpc.testnet.arc.network",
+  "https://rpc.quicknode.testnet.arc.network",
+  "https://rpc.blockdaemon.testnet.arc.network",
+] as const;
+
+/**
  * Deployed protocol contract addresses per chain.
  * `null` = not deployed yet (Faz 1). The frontend must treat null as
  * "feature not live" and fall back to its empty/placeholder state.

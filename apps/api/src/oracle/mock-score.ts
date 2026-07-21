@@ -5,7 +5,7 @@
 // ScoreOracle using the same authorized updater key, so `CreditLineManager`
 // treats it exactly like a real epoch write — `openLine`/`draw` work against
 // the live contracts, not a frontend fake.
-import { createWalletClient, http, keccak256, toHex, type Account } from "viem";
+import { createWalletClient, fallback, http, keccak256, toHex, type Account } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { scoreOracleAbi, SCORING_VERSION } from "@synapsefi/shared";
 import { config } from "../config.js";
@@ -52,7 +52,11 @@ export async function ensureMockScore(agent: `0x${string}`): Promise<MockScoreRe
   const epoch = BigInt(epochNumber(Math.floor(Date.now() / 1000)));
   const factorsHash = keccak256(toHex(`mock:${SCORING_VERSION}:${agent.toLowerCase()}:${epoch}`));
 
-  const walletClient = createWalletClient({ account, chain: arcTestnet, transport: http(config.rpcUrl) });
+  const walletClient = createWalletClient({
+    account,
+    chain: arcTestnet,
+    transport: fallback(config.rpcUrls.map((url) => http(url))),
+  });
   const txHash = await walletClient.writeContract({
     address: oracle,
     abi: scoreOracleAbi,

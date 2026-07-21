@@ -1,7 +1,7 @@
 // Central runtime configuration for the API + oracle worker. All values come
 // from the environment; sensible testnet defaults keep local dev turnkey.
 
-import { ARC_TESTNET, ARC_TESTNET_CHAIN_ID, ADDRESSES } from "@synapsefi/shared";
+import { ARC_TESTNET, ARC_TESTNET_CHAIN_ID, ARC_TESTNET_RPC_URLS, ADDRESSES } from "@synapsefi/shared";
 
 const chain = ADDRESSES[ARC_TESTNET_CHAIN_ID];
 
@@ -11,13 +11,20 @@ function addr(envKey: string, fallback: `0x${string}` | null): `0x${string}` | n
   return fallback;
 }
 
+// An explicit RPC_URL goes first (so operators can still pin one endpoint),
+// then the rest of Arc's known public RPCs as fallbacks — a bare `http(url)`
+// transport has no recourse when that one endpoint rate-limits.
+const rpcUrl = process.env.RPC_URL ?? ARC_TESTNET.rpcUrl;
+const rpcUrls = [rpcUrl, ...ARC_TESTNET_RPC_URLS.filter((u) => u !== rpcUrl)];
+
 export const config = {
   port: Number(process.env.PORT ?? 3001),
   databaseUrl: process.env.DATABASE_URL ?? "",
   databaseSchema: process.env.DATABASE_SCHEMA ?? "public",
 
   chainId: ARC_TESTNET_CHAIN_ID,
-  rpcUrl: process.env.RPC_URL ?? ARC_TESTNET.rpcUrl,
+  rpcUrl,
+  rpcUrls,
 
   // Oracle worker.
   oracleEnabled: process.env.ORACLE_ENABLED === "true",

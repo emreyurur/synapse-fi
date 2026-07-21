@@ -1,7 +1,7 @@
 // Read-only viem client for Arc Testnet plus the on-chain reads the API layers
 // on top of indexed data (accurate pool TVL/utilization, per-agent line state).
 
-import { createPublicClient, defineChain, http } from "viem";
+import { createPublicClient, defineChain, fallback, http } from "viem";
 import { creditPoolAbi, scoreOracleAbi } from "@synapsefi/shared";
 import { config } from "./config.js";
 
@@ -9,12 +9,14 @@ export const arcTestnet = defineChain({
   id: config.chainId,
   name: "Arc Testnet",
   nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
-  rpcUrls: { default: { http: [config.rpcUrl] } },
+  rpcUrls: { default: { http: config.rpcUrls as unknown as string[] } },
 });
 
+// Falls over to the next Arc RPC when one rate-limits instead of failing the
+// read outright — see ARC_TESTNET_RPC_URLS for why this isn't just http(url).
 export const publicClient = createPublicClient({
   chain: arcTestnet,
-  transport: http(config.rpcUrl),
+  transport: fallback(config.rpcUrls.map((url) => http(url))),
 });
 
 export interface PoolChainState {

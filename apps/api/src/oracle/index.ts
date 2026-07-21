@@ -5,7 +5,7 @@
 
 import cron from "node-cron";
 import { pathToFileURL } from "node:url";
-import { createWalletClient, http, type Account } from "viem";
+import { createWalletClient, fallback, http, type Account } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { scoreOracleAbi } from "@synapsefi/shared";
 import { config } from "../config.js";
@@ -43,7 +43,11 @@ export async function runEpochOnce(repo: Repo = createRepo()): Promise<EpochResu
     return result;
   }
 
-  const walletClient = createWalletClient({ account, chain: arcTestnet, transport: http(config.rpcUrl) });
+  const walletClient = createWalletClient({
+    account,
+    chain: arcTestnet,
+    transport: fallback(config.rpcUrls.map((url) => http(url))),
+  });
   const agents = entries.map((e) => e.agent);
   const scores = entries.map((e) => e.onchainScore);
   const hashes = entries.map((e) => e.factorsHash);

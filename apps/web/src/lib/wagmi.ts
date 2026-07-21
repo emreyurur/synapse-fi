@@ -1,8 +1,16 @@
 import { cookieStorage, createConfig, createStorage, http, injected } from "wagmi";
 import { arcTestnet } from "viem/chains";
-import type { Chain } from "viem";
+import { fallback, type Chain } from "viem";
+import { ARC_TESTNET_RPC_URLS } from "@synapsefi/shared";
 
 const rpcOverride = process.env.NEXT_PUBLIC_RPC_URL;
+
+// Arc's primary public RPC rate-limits hard under real traffic ("request
+// limit reached" — reproduced repeatedly against the backend). Every
+// connected browser reads through this same transport, so a bare http(url)
+// here is exactly what makes deposits/draws look like they "didn't happen"
+// — the read silently fails and the UI just keeps showing the stale value.
+const transport = rpcOverride ? http(rpcOverride) : fallback(ARC_TESTNET_RPC_URLS.map((url) => http(url)));
 
 /**
  * Arc Testnet, or a local anvil node impersonating it.
@@ -29,7 +37,7 @@ export const wagmiConfig = createConfig({
   storage: createStorage({ storage: cookieStorage }),
   ssr: true,
   transports: {
-    [chain.id]: http(rpcOverride),
+    [chain.id]: transport,
   },
 });
 
