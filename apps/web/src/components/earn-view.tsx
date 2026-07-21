@@ -6,7 +6,7 @@ import { useConnection, useReadContract } from "wagmi";
 import { api } from "@/lib/api";
 import { creditPool, formatUsdc, groupMoney, parseUsdc, toUsdcInput, usdc } from "@/lib/contracts";
 import { useAmountInput } from "@/lib/use-amount-input";
-import { txErrorMessage, useTx } from "@/lib/use-tx";
+import { useTx } from "@/lib/use-tx";
 import { RateChart } from "./charts";
 
 type Mode = "deposit" | "withdraw";
@@ -80,17 +80,13 @@ export function EarnView() {
     amount.set("");
   };
 
-  const buttonLabel = tx.isBusy
-    ? tx.status === "signing"
-      ? "Confirm in wallet…"
-      : "Pending…"
-    : !isConnected
-      ? "Connect wallet"
-      : mode === "deposit"
-        ? needsApproval
-          ? "Approve USDC"
-          : "Deposit USDC"
-        : "Withdraw";
+  const buttonLabel = !isConnected
+    ? "Connect wallet"
+    : mode === "deposit"
+      ? needsApproval
+        ? "Approve USDC"
+        : "Deposit USDC"
+      : "Withdraw";
 
   const earned =
     position !== undefined && shares !== undefined && position > 0n ? position : undefined;
@@ -208,13 +204,6 @@ export function EarnView() {
                   <p className="field-error">Nothing to withdraw — you have no pool position yet. Deposit first.</p>
                 )}
               </div>
-
-              {tx.status === "error" && (
-                <p className="meta" style={{ color: "var(--crit)", marginTop: 8 }}>{txErrorMessage(tx.error)}</p>
-              )}
-              {tx.status === "success" && (
-                <p className="meta" style={{ color: "var(--good-text)", marginTop: 8 }}>Confirmed on-chain.</p>
-              )}
             </>
           ) : (
             <p style={{ fontSize: 13, color: "var(--ink-3)", margin: "18px 0" }}>

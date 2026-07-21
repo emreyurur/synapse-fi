@@ -174,7 +174,6 @@ export function BorrowView() {
     repay.set("");
   };
 
-  const busyLabel = tx.status === "signing" ? "Confirm in wallet…" : "Pending…";
   const repaidTotal = (agent?.repayments ?? []).reduce(
     (sum, r) => sum + Number(r.principal.replace(/,/g, "")),
     0,
@@ -345,7 +344,7 @@ export function BorrowView() {
                       </button>
                     </div>
                     <button className="btn-primary" type="button" onClick={onDraw} disabled={parsedDraw === null || drawOverAvailable || tx.isBusy}>
-                      {tx.isBusy ? busyLabel : "Draw"}
+                      Draw
                     </button>
                   </div>
                   {draw.value && parsedDraw === null && (
@@ -384,7 +383,7 @@ export function BorrowView() {
                       </button>
                     </div>
                     <button className="btn-ghost" type="button" onClick={onRepay} disabled={parsedRepay === null || repayOverBalance || tx.isBusy}>
-                      {tx.isBusy ? busyLabel : needsRepayApproval ? "Approve" : "Repay"}
+                      {needsRepayApproval ? "Approve" : "Repay"}
                     </button>
                   </div>
                   {repay.value && parsedRepay === null && (
@@ -406,17 +405,10 @@ export function BorrowView() {
               </p>
               <div className="actions">
                 <button className="btn-primary" type="button" onClick={onOpenLine} disabled={creditLimit === 0n || tx.isBusy}>
-                  {tx.isBusy ? busyLabel : "Apply for a line"}
+                  Apply for a line
                 </button>
               </div>
             </>
-          )}
-
-          {tx.status === "error" && (
-            <p className="meta" style={{ color: "var(--crit)", marginTop: 8 }}>{txErrorMessage(tx.error)}</p>
-          )}
-          {tx.status === "success" && (
-            <p className="meta" style={{ color: "var(--good-text)", marginTop: 8 }}>Confirmed on-chain.</p>
           )}
         </div>
 

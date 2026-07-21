@@ -111,7 +111,7 @@ export function AppBar() {
             disabled={faucet.isBusy}
             title="Mint 10,000 test USDC (MockUSDC, free on testnet) to try Earn and Borrow — costs a little native gas USDC"
           >
-            {faucet.isBusy ? "Minting…" : "Get test USDC"}
+            Get test USDC
           </button>
         )}
         <button className="wallet-btn mono" type="button" onClick={onClick} title={isConnected ? "Disconnect" : "Connect an injected wallet"}>
